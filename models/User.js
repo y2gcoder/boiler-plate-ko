@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;                  //salt가 몇글자인지 나타냄.
+
 
 const userSchema = mongoose.Schema({
     name: {
@@ -30,6 +33,24 @@ const userSchema = mongoose.Schema({
         type: Number
     }
 })
+//user model에 유저 정보를 저장하기 전에 무엇을 해줄지. 
+//next : 이 function으로 register 라우터로 보내버리는 것. 
+userSchema.pre('save', function (next) {
+    const user = this;
+    if (user.isModified('password')) {
+        //비밀번호를 암호화 시킨다. 
+        bcrypt.genSalt(saltRounds, function (err, salt) {
+            if (err) return next(err)                                       //에러가 나면 index의 user.save로 보내줌.
+            bcrypt.hash(user.password, salt, function (err, hash) {
+                if (err) return next(err)
+                // Store hash in your password DB
+                user.password = hash
+                next()
+            });
+        });
+    }
+    
+});
 
 const User = mongoose.model('User', userSchema) //모델로 감싸주기.
 module.exports = {User}                         //다른 곳에서 쓸 수 있게. 
