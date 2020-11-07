@@ -76,5 +76,14 @@ app.get('/api/users/auth', auth, (req, res) => {    //auth ==> 미들웨어.
         image: req.user.image
     })
 })
+//로그인 된 상태이기 때문에 auth 미들웨어를 넣어줌. 
+app.get('/api/users/logout', auth, (req, res) => {
+    User.findOneAndUpdate({ _id: req.user._id}, { token: ""}, (err, user) => {
+        if (err) return res.json({ success:false, err });
+        return res.status(200).send({
+            success: true
+        })
+    })
+})
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
