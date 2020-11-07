@@ -4,7 +4,7 @@ const port = 5000
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const config = require('./config/key')
-
+const { auth } = require('./middleware/auth')
 const { User } = require("./models/User")
 
 //body-parser 가 클라이언트에서 오는 정보를 서버에서 처리할 수 있게 해주는 것. 
@@ -23,7 +23,7 @@ mongoose.connect(config.mongoURI, {
 
 app.get('/', (req, res) => res.send('Hello World!'));
 
-app.post('/register', (req, res) => {
+app.post('/api/users/register', (req, res) => {
     //회원 가입할 때 필요한 정보들을 client에서 가져오면
     //그것들을 데이터베이스에 넣어준다.
     //req.body는 body-parser가 있어서 가능함. 
@@ -36,7 +36,7 @@ app.post('/register', (req, res) => {
     })
 })
 
-app.post('/login', (req, res) => {
+app.post('/api/users/login', (req, res) => {
     //1. 요청된 이메일을 데이터베이스 내에 있는 지 확인한다.
     User.findOne({ email: req.body.email }, (err, user) => {
         if (!user) {    //데이터베이스에 해당 email을 가진 user가 없다면
@@ -61,10 +61,20 @@ app.post('/login', (req, res) => {
             })
         });
     })
-    
-
-    
-
+})
+//이 라우터 들은 나중에 Router(express에서 제공)로 분리를 해줄 것. 
+app.get('/api/users/auth', auth, (req, res) => {    //auth ==> 미들웨어. 
+    //여기까지 미들웨어를 통과해 왔다는 이야기는 Authentication이 true라는 말.
+    res.status(200).json({
+        _id: req.user._id,
+        isAdmin: req.user.role === 0 ? false : true,
+        isAuth: true,
+        email: req.user.email,
+        name: req.user.name,
+        lastname: req.user.lastname,
+        role: req.user.role,
+        image: req.user.image
+    })
 })
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
