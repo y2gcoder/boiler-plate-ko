@@ -1,0 +1,4 @@
+# git add한걸 지우려면 git rm --cached node_modules -r
+node_modules
+
+dev.js
