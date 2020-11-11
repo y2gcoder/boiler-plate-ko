@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import axios from 'axios'
+import { withRouter } from 'react-router-dom'
 function LandingPage(props) {
     useEffect(() => {
         axios.get('/api/hello')
@@ -10,6 +11,7 @@ function LandingPage(props) {
         axios.get(`api/users/logout`)
         .then(response => {
             if(response.data.success) {
+                //history가 react router dom을 이용해서 사용하고 있음.
                 props.history.push('/login')
             } else {
                 alert('로그아웃하는 데 실패했습니다.')
@@ -28,4 +30,4 @@ function LandingPage(props) {
     )
 }
 
-export default LandingPage
+export default withRouter(LandingPage)
